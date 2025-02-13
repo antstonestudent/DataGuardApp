@@ -20,4 +20,26 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
     }
+
+    // Event Handler for the Minimize Button
+    private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Minimize the window
+        this.WindowState = WindowState.Minimized;
+    }
+
+    // Event Handler for the Close Button
+    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    {
+        // Close the window
+        this.Close();
+    }
+
+    private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        if (e.LeftButton == System.Windows.Input.MouseButtonState.Pressed)
+        {
+            this.DragMove();
+        }
+    }
 }

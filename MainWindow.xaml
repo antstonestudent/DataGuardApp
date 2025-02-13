@@ -5,8 +5,72 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DataGuardApp"
         mc:Ignorable="d"
-        Title="DataGuard" Height="550" Width="400">
-    <Grid>
+        Title="DataGuard" Height="650" Width="400"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        MouseDown="Window_MouseDown">
 
-    </Grid>
+    <!-- Define resources like styles or templates here -->
+    <Window.Resources>
+        <Style x:Key="RoundButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <!-- Define the button's appearance -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="2"
+                                CornerRadius="15">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Border Background="White" BorderBrush="Black" BorderThickness="1" CornerRadius="130">
+        <Grid ClipToBounds="True">
+            <!-- Custom Title Bar -->
+            <Grid Height="40" VerticalAlignment="Top" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Title Text -->
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                           Text="DataGuard" FontSize="16" FontWeight="Bold" Foreground="Black" />
+
+                <!-- Title Bar Buttons -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,80,0">
+                    <!-- Minimize Button -->
+                    <Button Content="__" Width="30" Height="30" Background="Transparent" Foreground="Black"
+                            BorderBrush="DarkGray" BorderThickness="2" Click="MinimizeButton_Click"
+                            Style="{StaticResource RoundButtonStyle}" Margin="0,0,-2,0" />
+
+                    <!-- Close Button -->
+                    <Button Content="X" Width="30" Height="30" Background="Transparent" Foreground="Black"
+                            BorderBrush="DarkGray" BorderThickness="2" Click="CloseButton_Click"
+                            Style="{StaticResource RoundButtonStyle}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- Window Content -->
+            <Grid Margin="0,40,0,0">
+                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Text="Content Goes Here" />
+            </Grid>
+        </Grid>
+    </Border>
 </Window>
