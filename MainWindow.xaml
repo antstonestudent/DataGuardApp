@@ -1,22 +1,19 @@
 ﻿<Window x:Class="DataGuardApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:DataGuardApp"
-        mc:Ignorable="d"
+        xmlns:sys="clr-namespace:System;assembly=netstandard"
         Title="DataGuard" Height="650" Width="400"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         MouseDown="Window_MouseDown">
 
-    <!-- Define resources like styles or templates here -->
     <Window.Resources>
+        <!-- Button Style for Left and Right buttons -->
         <Style x:Key="RoundButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="Width" Value="30"/>
             <Setter Property="FontSize" Value="16"/>
@@ -24,7 +21,6 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <!-- Define the button's appearance -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -38,19 +34,54 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style x:Key="SquareButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Padding" Value="5"/>
+            <Setter Property="BorderBrush" Value="Black"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Height" Value="50"/>
+            <Setter Property="Width" Value="130"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Border Background="White" BorderBrush="Black" BorderThickness="1" CornerRadius="130">
+    <!-- Base Shield (Main Window) -->
+    <Border Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="130" Margin="20">
         <Grid ClipToBounds="True">
-            <!-- Custom Title Bar -->
-            <Grid Height="40" VerticalAlignment="Top" Background="Transparent">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+            <!-- Define Rows in the Grid -->
+            <Grid.RowDefinitions>
+                <!-- Row 0: Title and Window Controls -->
+                <RowDefinition Height="Auto" />
+                <!-- Row 1: Application Logo -->
+                <RowDefinition Height="Auto" />
+                <!-- Row 2: How-To-Use Display -->
+                <RowDefinition Height="Auto" />
+                <!-- Row 3: File Selection, Indicators, and main Buttons -->
+                <RowDefinition Height="160" />
+                <!-- Row 4: Help and Authors -->
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
+            <!-- Row 0: Title and Window Controls -->
+            <Grid Grid.Row="0" Height="40" Background="Transparent">
                 <!-- Title Text -->
-                <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="80,0,0,0"
                            Text="DataGuard" FontSize="16" FontWeight="Bold" Foreground="Black" />
 
                 <!-- Title Bar Buttons -->
@@ -67,10 +98,108 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Window Content -->
-            <Grid Margin="0,40,0,0">
-                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="24" Text="Content Goes Here" />
+            <!-- Row 1: Application Logo -->
+            <Grid Grid.Row="1" Height="50" Background="Transparent">
+                <!-- Application Logo -->
+                <Image Source="pack://application:,,,/resources/logo.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
+
+            <!-- Row 2: How-To-Use Display -->
+            <Grid Grid.Row="2" Height="150" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition x:Name="LeftColumn" Width="*"/>
+                    <ColumnDefinition x:Name="CenterColumn" Width="Auto"/>
+                    <ColumnDefinition x:Name="RightColumn" Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!-- Left Column Text -->
+                <TextBlock x:Name="LeftText" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Visibility="Collapsed">
+                    <Run Text="Left Side:"/>
+                    <LineBreak/>
+                    <Run Text="Line 1 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 2 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 3 of text."/>
+                </TextBlock>
+                
+                <TextBlock x:Name="RightText" Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,0" Visibility="Collapsed">
+                    <Run Text="Right Side:"/>
+                    <LineBreak/>
+                    <Run Text="Line 1 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 2 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 3 of text."/>
+                </TextBlock>
+
+                <Polygon Grid.Column="0" Grid.ColumnSpan="3" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,0 30,150 0,150" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" MouseDown="Polygon_MouseDown"/>
+                
+            </Grid>
+
+            <!-- Row 3: File Selection, Indicators, and main Buttons -->
+            <Grid Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Row="3">
+                    <!-- The Rounded Rectangle (Body of the Shield) -->
+                    <Border Width="140" VerticalAlignment="Center" Height="160" HorizontalAlignment="Center" CornerRadius="30" BorderThickness="1" BorderBrush="Black" Background="White">
+                        <!-- Inner content of the shield goes here -->
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- Rivets (Traffic Light Indicators) -->
+                            <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
+                            <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
+                            <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
+                            <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
+                        </Grid>
+                    </Border>
+                    <!-- File Drag-and-Drop Area -->
+                    <Ellipse Width="100" VerticalAlignment="Center" StrokeThickness="1" Stroke="Black" Height="100" HorizontalAlignment="Center" Fill="White">
+                        <Ellipse.ToolTip>
+                            <ToolTip Content="Drag and Drop a File"/>
+                        </Ellipse.ToolTip>
+                    </Ellipse>
+                    <!-- Buttons on the Left and Right of the Rounded Rectangle -->
+                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
+                        <!-- Left Button -->
+                        <Button Width="108" Style="{StaticResource SquareButtonStyle}" Margin="40,0" Height="50" Content="Link to&#x0a;Download Source"/>
+                        <!-- Right Button -->
+                        <Button Width="108" Style="{StaticResource SquareButtonStyle}" Margin="40,0" Height="50" Content="New Version&#x0a;Available"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <!-- Row 4: Info and Authors -->
+            <Grid Grid.Row="4" Height="200" Background="Transparent">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Left Column Text -->
+                <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10">
+                    <Run Text="Left Side:"/>
+                    <LineBreak/>
+                    <Run Text="Line 1 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 2 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 3 of text."/>
+                </TextBlock>
+                
+                <Polygon Grid.Column="1" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,200 30,0 0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center"/>
+
+                <!-- Right Column Text -->
+                <TextBlock Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,70,0">
+                    <Run Text="Right Side:"/>
+                    <LineBreak/>
+                    <Run Text="Line 1 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 2 of text."/>
+                    <LineBreak/>
+                    <Run Text="Line 3 of text."/>
+                </TextBlock>
+            </Grid>
+
+
         </Grid>
     </Border>
 </Window>
