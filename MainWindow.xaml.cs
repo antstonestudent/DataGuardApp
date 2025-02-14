@@ -42,4 +42,22 @@ public partial class MainWindow : Window
             this.DragMove();
         }
     }
+
+    private bool columnsVisible = false; // This is to set the visibility of the text to collapsed by default
+    private void Polygon_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (columnsVisible)
+        {
+            // Hide the left and right columns by setting their visibility to collapsed
+            LeftText.Visibility = Visibility.Collapsed;
+            RightText.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            //Show the columns restoring their visibility
+            LeftText.Visibility = Visibility.Visible;
+            RightText.Visibility = Visibility.Visible;
+        }
+        columnsVisible = !columnsVisible;
+    }
 }
