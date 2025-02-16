@@ -34,12 +34,12 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="SquareButtonStyle" TargetType="Button">
+        <Style x:Key="RoundedEdgeButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="White"/>
             <Setter Property="Foreground" Value="Black"/>
             <Setter Property="Padding" Value="5"/>
             <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Height" Value="50"/>
             <Setter Property="Width" Value="130"/>
             <Setter Property="FontSize" Value="12"/>
@@ -47,22 +47,11 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="1">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
     </Window.Resources>
 
     <!-- Base Shield (Main Window) -->
-    <Border Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="130" Margin="20">
+    <Border Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="130" Margin="0">
         <Grid ClipToBounds="True">
             <!-- Define Rows in the Grid -->
             <Grid.RowDefinitions>
@@ -121,7 +110,7 @@
                     <LineBreak/>
                     <Run Text="Line 3 of text."/>
                 </TextBlock>
-                
+
                 <TextBlock x:Name="RightText" Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,0" Visibility="Collapsed">
                     <Run Text="Right Side:"/>
                     <LineBreak/>
@@ -132,17 +121,26 @@
                     <Run Text="Line 3 of text."/>
                 </TextBlock>
 
-                <Polygon Grid.Column="0" Grid.ColumnSpan="3" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,0 30,150 0,150" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" MouseDown="Polygon_MouseDown"/>
-                
+                <Polygon Grid.Column="0" Grid.ColumnSpan="3" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,0 30,150 0,150" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" MouseDown="Polygon_MouseDown">
+                    <Polygon.ToolTip>
+                        <ToolTip Content="Click for Instructions"/>
+                    </Polygon.ToolTip>
+                    
+                </Polygon>
+
             </Grid>
 
             <!-- Row 3: File Selection, Indicators, and main Buttons -->
             <Grid Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="MD5" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="84,6,0,0" />
+                <TextBlock Text="SHA-1" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,70,0" />
+                <TextBlock Text="SHA-512" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,52,10" />
+                <TextBlock Text="SHA-256" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="54,0,0,10" />
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Row="3">
                     <!-- The Rounded Rectangle (Body of the Shield) -->
                     <Border Width="140" VerticalAlignment="Center" Height="160" HorizontalAlignment="Center" CornerRadius="30" BorderThickness="1" BorderBrush="Black" Background="White">
                         <!-- Inner content of the shield goes here -->
-                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Grid>
                             <!-- Rivets (Traffic Light Indicators) -->
                             <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
                             <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
@@ -159,9 +157,32 @@
                     <!-- Buttons on the Left and Right of the Rounded Rectangle -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
                         <!-- Left Button -->
-                        <Button Width="108" Style="{StaticResource SquareButtonStyle}" Margin="40,0" Height="50" Content="Link to&#x0a;Download Source"/>
+                        <Button Content="Link to&#x0a;Download Source" Width="108" Style="{StaticResource RoundedEdgeButtonStyle}" Margin="70,0" Height="50">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="10,0,0,10">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
                         <!-- Right Button -->
-                        <Button Width="108" Style="{StaticResource SquareButtonStyle}" Margin="40,0" Height="50" Content="New Version&#x0a;Available"/>
+                        <Button Content="New Version&#x0a;Available" Width="108" Style="{StaticResource RoundedEdgeButtonStyle}" Margin="70,0" Height="50">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="0,10,10,0">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
                     </StackPanel>
                 </Grid>
             </Grid>
@@ -173,7 +194,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <!-- Left Column Text -->
                 <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10">
                     <Run Text="Left Side:"/>
@@ -184,7 +205,7 @@
                     <LineBreak/>
                     <Run Text="Line 3 of text."/>
                 </TextBlock>
-                
+
                 <Polygon Grid.Column="1" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,200 30,0 0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center"/>
 
                 <!-- Right Column Text -->
