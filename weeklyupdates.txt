@@ -1,0 +1,9 @@
+10-16 February
+
+Installed required applications and added the framework we decided on
+created a new repository
+designed basic layout
+redesigned checksum display from Figma. Decided that the hashes are too long to display in a nice clean way. Replaced with Instructions for use.
+added main button in the middle of the ui surrounded by the traffic light indicators and the buttons for download link and link to new version of file.
+
+
