@@ -148,12 +148,19 @@
                             <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
                         </Grid>
                     </Border>
+                    
                     <!-- File Drag-and-Drop Area -->
-                    <Ellipse Width="100" VerticalAlignment="Center" StrokeThickness="1" Stroke="Black" Height="100" HorizontalAlignment="Center" Fill="White">
-                        <Ellipse.ToolTip>
-                            <ToolTip Content="Drag and Drop a File"/>
-                        </Ellipse.ToolTip>
-                    </Ellipse>
+                    <Button x:Name="FileButton" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Click="FileButton_Click" AllowDrop="True" DragEnter="FileButton_DragEnter" Drop="FileButton_Drop">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Ellipse Fill="White" Stroke="Black" StrokeThickness="1"/>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <Button.ToolTip>
+                            <ToolTip Content="Drag and Drop a File or click to browse" />
+                        </Button.ToolTip>
+                    </Button>
+                    
                     <!-- Buttons on the Left and Right of the Rounded Rectangle -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
                         <!-- Left Button -->
