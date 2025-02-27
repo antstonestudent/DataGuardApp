@@ -1,233 +1,122 @@
-﻿<Window x:Class="DataGuardApp.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:sys="clr-namespace:System;assembly=netstandard"
-        Title="DataGuard" Height="650" Width="400"
-        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
-        MouseDown="Window_MouseDown">
+using System;
+using System.Windows;
+using System.Windows.Input;
+using Microsoft.Win32;
+using System.IO;
+using DataGuardApp.hashing;
 
-    <Window.Resources>
-        <!-- Button Style for Left and Right buttons -->
-        <Style x:Key="RoundButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Width" Value="30"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="2"
-                                CornerRadius="15">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style x:Key="RoundedEdgeButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="BorderBrush" Value="Black"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Width" Value="130"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        </Style>
-    </Window.Resources>
+namespace DataGuardApp
+{
+    public partial class MainWindow : Window
+    {
+        private string selectedFile = string.Empty;
+        private bool columnsVisible = false; // Controls collapsible panel visibility
 
-    <!-- Base Shield (Main Window) -->
-    <Border Background="White" BorderBrush="Black" BorderThickness="2" CornerRadius="130" Margin="0">
-        <Grid ClipToBounds="True">
-            <!-- Define Rows in the Grid -->
-            <Grid.RowDefinitions>
-                <!-- Row 0: Title and Window Controls -->
-                <RowDefinition Height="Auto" />
-                <!-- Row 1: Application Logo -->
-                <RowDefinition Height="Auto" />
-                <!-- Row 2: How-To-Use Display -->
-                <RowDefinition Height="Auto" />
-                <!-- Row 3: File Selection, Indicators, and main Buttons -->
-                <RowDefinition Height="160" />
-                <!-- Row 4: Help and Authors -->
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
 
-            <!-- Row 0: Title and Window Controls -->
-            <Grid Grid.Row="0" Height="40" Background="Transparent">
-                <!-- Title Text -->
-                <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="80,0,0,0"
-                           Text="DataGuard" FontSize="16" FontWeight="Bold" Foreground="Black" />
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
 
-                <!-- Title Bar Buttons -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,80,0">
-                    <!-- Minimize Button -->
-                    <Button Content="__" Width="30" Height="30" Background="Transparent" Foreground="Black"
-                            BorderBrush="DarkGray" BorderThickness="2" Click="MinimizeButton_Click"
-                            Style="{StaticResource RoundButtonStyle}" Margin="0,0,-2,0" />
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
 
-                    <!-- Close Button -->
-                    <Button Content="X" Width="30" Height="30" Background="Transparent" Foreground="Black"
-                            BorderBrush="DarkGray" BorderThickness="2" Click="CloseButton_Click"
-                            Style="{StaticResource RoundButtonStyle}" />
-                </StackPanel>
-            </Grid>
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                DragMove();
+            }
+        }
 
-            <!-- Row 1: Application Logo -->
-            <Grid Grid.Row="1" Height="50" Background="Transparent">
-                <!-- Application Logo -->
-                <Image Source="pack://application:,,,/resources/logo.png" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Grid>
+        private void Polygon_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            LeftText.Visibility = columnsVisible ? Visibility.Collapsed : Visibility.Visible;
+            RightText.Visibility = columnsVisible ? Visibility.Collapsed : Visibility.Visible;
+            columnsVisible = !columnsVisible;
+        }
 
-            <!-- Row 2: How-To-Use Display -->
-            <Grid Grid.Row="2" Height="150" Background="Transparent">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition x:Name="LeftColumn" Width="*"/>
-                    <ColumnDefinition x:Name="CenterColumn" Width="Auto"/>
-                    <ColumnDefinition x:Name="RightColumn" Width="*"/>
-                </Grid.ColumnDefinitions>
-                <!-- Left Column Text -->
-                <TextBlock x:Name="LeftText" Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Visibility="Collapsed">
-                    <Run Text="Left Side:"/>
-                    <LineBreak/>
-                    <Run Text="Line 1 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 2 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 3 of text."/>
-                </TextBlock>
+        private void FileButton_Click(object sender, RoutedEventArgs e)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                DefaultExt = "*.*",
+                Filter = "All Files (*.*)|*.*"
+            };
 
-                <TextBlock x:Name="RightText" Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,0" Visibility="Collapsed">
-                    <Run Text="Right Side:"/>
-                    <LineBreak/>
-                    <Run Text="Line 1 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 2 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 3 of text."/>
-                </TextBlock>
+            if (openFileDialog.ShowDialog() == true)
+            {
+                selectedFile = openFileDialog.FileName;
+                FilePathTextBox.Text = selectedFile;
+            }
+        }
 
-                <Polygon Grid.Column="0" Grid.ColumnSpan="3" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,0 30,150 0,150" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" MouseDown="Polygon_MouseDown">
-                    <Polygon.ToolTip>
-                        <ToolTip Content="Click for Instructions"/>
-                    </Polygon.ToolTip>
-                    
-                </Polygon>
+        private void FileButton_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+        }
 
-            </Grid>
+        private void FileButton_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files.Length > 1)
+                {
+                    MessageBox.Show("Please select only one file at a time.", "Multiple Files Detected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                selectedFile = files[0];
+                FilePathTextBox.Text = selectedFile;
+            }
+        }
 
-            <!-- Row 3: File Selection, Indicators, and main Buttons -->
-            <Grid Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="MD5" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="84,6,0,0" />
-                <TextBlock Text="SHA-1" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,70,0" />
-                <TextBlock Text="SHA-512" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,52,10" />
-                <TextBlock Text="SHA-256" FontWeight="Bold" FontSize="16" Foreground="Black" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="54,0,0,10" />
-                <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Row="3">
-                    <!-- The Rounded Rectangle (Body of the Shield) -->
-                    <Border Width="140" VerticalAlignment="Center" Height="160" HorizontalAlignment="Center" CornerRadius="30" BorderThickness="1" BorderBrush="Black" Background="White">
-                        <!-- Inner content of the shield goes here -->
-                        <Grid>
-                            <!-- Rivets (Traffic Light Indicators) -->
-                            <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
-                            <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
-                            <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
-                            <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
-                        </Grid>
-                    </Border>
-                    
-                    <!-- File Drag-and-Drop Area -->
-                    <Button x:Name="FileButton" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Click="FileButton_Click" AllowDrop="True" DragEnter="FileButton_DragEnter" Drop="FileButton_Drop">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Ellipse Fill="White" Stroke="Black" StrokeThickness="1"/>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <Button.ToolTip>
-                            <ToolTip Content="Drag and Drop a File or click to browse" />
-                        </Button.ToolTip>
-                    </Button>
-                    
-                    <!-- Buttons on the Left and Right of the Rounded Rectangle -->
-                    <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
-                        <!-- Left Button -->
-                        <Button Content="Link to&#x0a;Download Source" Width="108" Style="{StaticResource RoundedEdgeButtonStyle}" Margin="70,0" Height="50">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                        CornerRadius="10,0,0,10">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+        private void OfficialHashTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (OfficialHashTextBox.Text == "Enter Official Hash")
+            {
+                OfficialHashTextBox.Text = "";
+            }
+        }
 
-                        <!-- Right Button -->
-                        <Button Content="New Version&#x0a;Available" Width="108" Style="{StaticResource RoundedEdgeButtonStyle}" Margin="70,0" Height="50">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                        CornerRadius="0,10,10,0">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                    </StackPanel>
-                </Grid>
-            </Grid>
+        private void ComputeHashButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(selectedFile))
+            {
+                MessageBox.Show("Please select a file.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            <!-- Row 4: Info and Authors -->
-            <Grid Grid.Row="4" Height="200" Background="Transparent">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            if (string.IsNullOrWhiteSpace(OfficialHashTextBox.Text))
+            {
+                MessageBox.Show("Please enter the official hash.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-                <!-- Left Column Text -->
-                <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10">
-                    <Run Text="Left Side:"/>
-                    <LineBreak/>
-                    <Run Text="Line 1 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 2 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 3 of text."/>
-                </TextBlock>
+            string officialHash = OfficialHashTextBox.Text.Trim().ToLower();
 
-                <Polygon Grid.Column="1" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,200 30,0 0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center"/>
+            string md5Hash = MD5Hasher.ComputeHash(selectedFile);
+            string sha1Hash = SHA1Hasher.ComputeHash(selectedFile);
+            string sha256Hash = SHA256Hasher.ComputeHash(selectedFile);
+            string sha512Hash = SHA512Hasher.ComputeHash(selectedFile);
 
-                <!-- Right Column Text -->
-                <TextBlock Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,70,0">
-                    <Run Text="Right Side:"/>
-                    <LineBreak/>
-                    <Run Text="Line 1 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 2 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 3 of text."/>
-                </TextBlock>
-            </Grid>
-
-
-        </Grid>
-    </Border>
-</Window>
+            MD5ResultText.Text = $"MD5: {md5Hash} - " + (md5Hash == officialHash ? "✅ Match" : "❌ No Match");
+            SHA1ResultText.Text = $"SHA-1: {sha1Hash} - " + (sha1Hash == officialHash ? "✅ Match" : "❌ No Match");
+            SHA256ResultText.Text = $"SHA-256: {sha256Hash} - " + (sha256Hash == officialHash ? "✅ Match" : "❌ No Match");
+            SHA512ResultText.Text = $"SHA-512: {sha512Hash} - " + (sha512Hash == officialHash ? "✅ Match" : "❌ No Match");
+        }
+    }
+}
