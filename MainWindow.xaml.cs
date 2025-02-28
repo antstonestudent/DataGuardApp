@@ -1,8 +1,9 @@
 using System;
 using System.Windows;
-using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 using System.IO;
+using System.Linq;
 using DataGuardApp.hashing;
 
 namespace DataGuardApp
@@ -10,85 +11,25 @@ namespace DataGuardApp
     public partial class MainWindow : Window
     {
         private string selectedFile = string.Empty;
-        private bool columnsVisible = false; // Controls collapsible panel visibility
+        private string[] storedHashes;
+        private string hashFilePath = "stored_hashes.txt"; // Path to hash file
 
         public MainWindow()
         {
             InitializeComponent();
+            LoadStoredHashes();
         }
 
-        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        private void LoadStoredHashes()
         {
-            this.WindowState = WindowState.Minimized;
-        }
-
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (File.Exists(hashFilePath))
             {
-                DragMove();
-            }
-        }
-
-        private void Polygon_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            LeftText.Visibility = columnsVisible ? Visibility.Collapsed : Visibility.Visible;
-            RightText.Visibility = columnsVisible ? Visibility.Collapsed : Visibility.Visible;
-            columnsVisible = !columnsVisible;
-        }
-
-        private void FileButton_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new OpenFileDialog
-            {
-                DefaultExt = "*.*",
-                Filter = "All Files (*.*)|*.*"
-            };
-
-            if (openFileDialog.ShowDialog() == true)
-            {
-                selectedFile = openFileDialog.FileName;
-                FilePathTextBox.Text = selectedFile;
-            }
-        }
-
-        private void FileButton_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                e.Effects = DragDropEffects.Copy;
+                storedHashes = File.ReadAllLines(hashFilePath);
             }
             else
             {
-                e.Effects = DragDropEffects.None;
-            }
-        }
-
-        private void FileButton_Drop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                if (files.Length > 1)
-                {
-                    MessageBox.Show("Please select only one file at a time.", "Multiple Files Detected", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-                selectedFile = files[0];
-                FilePathTextBox.Text = selectedFile;
-            }
-        }
-
-        private void OfficialHashTextBox_GotFocus(object sender, RoutedEventArgs e)
-        {
-            if (OfficialHashTextBox.Text == "Enter Official Hash")
-            {
-                OfficialHashTextBox.Text = "";
+                storedHashes = new string[0];
+                File.WriteAllText(hashFilePath, ""); // This function will create an empty file if it doesn't exist
             }
         }
 
@@ -100,23 +41,70 @@ namespace DataGuardApp
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(OfficialHashTextBox.Text))
-            {
-                MessageBox.Show("Please enter the official hash.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            string officialHash = OfficialHashTextBox.Text.Trim().ToLower();
-
             string md5Hash = MD5Hasher.ComputeHash(selectedFile);
             string sha1Hash = SHA1Hasher.ComputeHash(selectedFile);
             string sha256Hash = SHA256Hasher.ComputeHash(selectedFile);
             string sha512Hash = SHA512Hasher.ComputeHash(selectedFile);
 
-            MD5ResultText.Text = $"MD5: {md5Hash} - " + (md5Hash == officialHash ? "✅ Match" : "❌ No Match");
-            SHA1ResultText.Text = $"SHA-1: {sha1Hash} - " + (sha1Hash == officialHash ? "✅ Match" : "❌ No Match");
-            SHA256ResultText.Text = $"SHA-256: {sha256Hash} - " + (sha256Hash == officialHash ? "✅ Match" : "❌ No Match");
-            SHA512ResultText.Text = $"SHA-512: {sha512Hash} - " + (sha512Hash == officialHash ? "✅ Match" : "❌ No Match");
+            // Function that updates UI indicators (traffic lights)
+            UpdateTrafficLight(indicator1, GetHashStatus(md5Hash));    // MD5
+            UpdateTrafficLight(indicator2, GetHashStatus(sha1Hash));   // SHA-1
+            UpdateTrafficLight(indicator3, GetHashStatus(sha256Hash)); // SHA-256
+            UpdateTrafficLight(indicator4, GetHashStatus(sha512Hash)); // SHA-512
+
+            // Function to store hashes for future reference
+            SaveHash(md5Hash);
+            SaveHash(sha1Hash);
+            SaveHash(sha256Hash);
+            SaveHash(sha512Hash);
+        }
+
+        private string GetHashStatus(string computedHash)
+        {
+            string storedHash = FindStoredHash(computedHash);
+
+            if (storedHash == null)
+            {
+                return "Yellow"; // No stored hash found
+            }
+            else if (computedHash == storedHash)
+            {
+                return "Green"; // Hash matches
+            }
+            else
+            {
+                return "Red"; // Hash mismatch
+            }
+        }
+
+        private void UpdateTrafficLight(System.Windows.Shapes.Ellipse light, string status)
+        {
+            switch (status)
+            {
+                case "Green":
+                    light.Fill = Brushes.Green;
+                    break;
+                case "Yellow":
+                    light.Fill = Brushes.Yellow;
+                    break;
+                case "Red":
+                    light.Fill = Brushes.Red;
+                    break;
+            }
+        }
+
+        private string FindStoredHash(string computedHash)
+        {
+            return storedHashes.FirstOrDefault(hash => hash.Equals(computedHash, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private void SaveHash(string newHash)
+        {
+            if (!storedHashes.Contains(newHash)) // This function is used to avoid duplicated entries
+            {
+                File.AppendAllText(hashFilePath, newHash + Environment.NewLine);
+                storedHashes = File.ReadAllLines(hashFilePath); // This function is to refresh stored hashes
+            }
         }
     }
 }
