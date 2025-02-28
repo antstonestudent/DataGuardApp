@@ -10,17 +10,21 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 
-namespace DataGuardApp;
-
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
-public partial class MainWindow : Window
+namespace DataGuardApp
 {
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
-    }
+        private string selectedFile = string.Empty; // Function that stores the path of the selected file
+        private string[] storedHashes;
+        private string hashFilePath = "stored_hashes.txt"; // Path to store known hashes
+        private bool columnsVisible = false; // Function that controls collapsible panel visibility
+
+        // Constructor: Function that initializes the UI components and loads stored hashes
+        public MainWindow()
+        {
+            InitializeComponent();
+            LoadStoredHashes();
+        }
 
     // Event Handler for the Minimize Button
     private void MinimizeButton_Click(object sender, RoutedEventArgs e)
@@ -108,8 +112,60 @@ public partial class MainWindow : Window
                     return;
                 }
                 selectedFile = files[0];
+                FilePathTextBox.Text = selectedFile;
             }
         }
-    }
+
+        // Function that computes the hash values (MD5, SHA-1, SHA-256, SHA-512) for the selected file
+        private void ComputeHashButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(selectedFile))
+            {
+                MessageBox.Show("Please select a file.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            string md5Hash = MD5Hasher.ComputeHash(selectedFile);
+            string sha1Hash = SHA1Hasher.ComputeHash(selectedFile);
+            string sha256Hash = SHA256Hasher.ComputeHash(selectedFile);
+            string sha512Hash = SHA512Hasher.ComputeHash(selectedFile);
+
+            // Function that updates the visual indicators for each hash type
+            UpdateIndicator(indicator1, md5Hash);
+            UpdateIndicator(indicator2, sha1Hash);
+            UpdateIndicator(indicator3, sha256Hash);
+            UpdateIndicator(indicator4, sha512Hash);
+
+            // Function that stores computed hashes
+            SaveHash(md5Hash);
+            SaveHash(sha1Hash);
+            SaveHash(sha256Hash);
+            SaveHash(sha512Hash);
+        }
+
+        // Function that updates the visual indicator based on hash verification
+        private void UpdateIndicator(System.Windows.Shapes.Ellipse indicator, string computedHash)
+        {
+            if (string.IsNullOrWhiteSpace(OfficialHashTextBox.Text))
+            {
+                // No official hash provided, set indicator to yellow (unknown status)
+                indicator.Fill = Brushes.Yellow;
+            }
+            else
+            {
+                string officialHash = OfficialHashTextBox.Text.Trim().ToLower();
+
+                if (computedHash == officialHash)
+                {
+                    // Hash matches, set indicator to green (safe)
+                    indicator.Fill = Brushes.Green;
+                }
+                else
+                {
+                    // Hash does not match, set indicator to red (potential tampering)
+                    indicator.Fill = Brushes.Red;
+                }
+            }
+        }
 
 }

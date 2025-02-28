@@ -142,10 +142,10 @@
                         <!-- Inner content of the shield goes here -->
                         <Grid>
                             <!-- Rivets (Traffic Light Indicators) -->
-                            <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
-                            <Ellipse Width="15" VerticalAlignment="Top" x:Name="RivetTopRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
-                            <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomLeft" Margin="10" Height="15" HorizontalAlignment="Left" Fill="Black"/>
-                            <Ellipse Width="15" VerticalAlignment="Bottom" x:Name="RivetBottomRight" Margin="10" Height="15" HorizontalAlignment="Right" Fill="Black"/>
+                            <Ellipse x:Name="indicator1" Width="15" Height="15" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicator2" Width="15" Height="15" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicator3" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Left" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicator4" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
                         </Grid>
                     </Border>
                     
