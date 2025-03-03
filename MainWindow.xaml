@@ -142,10 +142,10 @@
                         <!-- Inner content of the shield goes here -->
                         <Grid>
                             <!-- Rivets (Traffic Light Indicators) -->
-                            <Ellipse x:Name="indicator1" Width="15" Height="15" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
-                            <Ellipse x:Name="indicator2" Width="15" Height="15" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
-                            <Ellipse x:Name="indicator3" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Left" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
-                            <Ellipse x:Name="indicator4" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicatorMD5" Width="15" Height="15" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicatorSHA1" Width="15" Height="15" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicatorSHA256" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Left" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
+                            <Ellipse x:Name="indicatorSHA512" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
                         </Grid>
                     </Border>
                     

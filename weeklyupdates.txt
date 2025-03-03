@@ -6,4 +6,18 @@ designed basic layout
 redesigned checksum display from Figma. Decided that the hashes are too long to display in a nice clean way. Replaced with Instructions for use.
 added main button in the middle of the ui surrounded by the traffic light indicators and the buttons for download link and link to new version of file.
 
+17-23 February
+
+24 Feb - 2 March
+
+3-9 March
+
+10-16 March
+
+17-23 March
+
+24-30 March
+
+31 March - 6 April
+
 
