@@ -123,9 +123,9 @@
 
                 <Polygon Grid.Column="0" Grid.ColumnSpan="3" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,0 30,150 0,150" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" MouseDown="Polygon_MouseDown">
                     <Polygon.ToolTip>
-                        <ToolTip Content="Click for Instructions"/>
+                        <ToolTip Content="View Instructions"/>
                     </Polygon.ToolTip>
-                    
+
                 </Polygon>
 
             </Grid>
@@ -148,9 +148,9 @@
                             <Ellipse x:Name="indicatorSHA512" Width="15" Height="15" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Right" StrokeThickness="1" Stroke="Gray" Fill="Transparent"/>
                         </Grid>
                     </Border>
-                    
+
                     <!-- File Drag-and-Drop Area -->
-                    <Button x:Name="FileButton" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Click="FileButton_Click" AllowDrop="True" DragEnter="FileButton_DragEnter" Drop="FileButton_Drop">
+                    <Button x:Name="FileButton" Width="100" Height="100" HorizontalAlignment="Center" VerticalAlignment="Center" Click="FileButton_Click" AllowDrop="True" DragEnter="FileButton_DragEnter" Drop="FileButton_Drop" Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Ellipse Fill="White" Stroke="Black" StrokeThickness="1"/>
@@ -160,7 +160,7 @@
                             <ToolTip Content="Drag and Drop a File or click to browse" />
                         </Button.ToolTip>
                     </Button>
-                    
+
                     <!-- Buttons on the Left and Right of the Rounded Rectangle -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
                         <!-- Left Button -->
@@ -203,27 +203,33 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Left Column Text -->
-                <TextBlock Grid.Column="0" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10">
-                    <Run Text="Left Side:"/>
-                    <LineBreak/>
-                    <Run Text="Line 1 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 2 of text."/>
-                    <LineBreak/>
-                    <Run Text="Line 3 of text."/>
-                </TextBlock>
+                <RichTextBox x:Name="outputTextBox"
+                           Grid.Column="0"
+                           Margin="32,10,10,10"
+                           IsReadOnly="True"
+                           VerticalScrollBarVisibility="Hidden"
+                           AcceptsReturn="True"
+                           Focusable="False"
+                           FontSize="12"
+                           BorderThickness="0"
+                           BorderBrush="Transparent"
+                           FocusVisualStyle="{x:Null}"
+                           Cursor="ScrollNS"/>
 
                 <Polygon Grid.Column="1" Fill="White" Stroke="Black" StrokeThickness="1" Points="15,200 30,0 0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center"/>
 
                 <!-- Right Column Text -->
-                <TextBlock Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,70,0">
-                    <Run Text="Right Side:"/>
+                <TextBlock Grid.Column="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Run Text="Developers:"/>
                     <LineBreak/>
-                    <Run Text="Line 1 of text."/>
+                    <Run Text="Anthony Stone"/>
                     <LineBreak/>
-                    <Run Text="Line 2 of text."/>
+                    <Run Text="Koda Shute"/>
                     <LineBreak/>
-                    <Run Text="Line 3 of text."/>
+                    <LineBreak/>
+                    <Run Text="Diploma in"/>
+                    <LineBreak/>
+                    <Run Text="Software Development"/>
                 </TextBlock>
             </Grid>
 

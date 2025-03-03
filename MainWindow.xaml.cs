@@ -3,7 +3,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.IO;
+using System.Text;
 using Microsoft.Win32;
+using System.Windows.Documents;
 
 namespace DataGuardApp
 {
@@ -78,6 +80,7 @@ namespace DataGuardApp
                 selectedFile = openFileDialog.FileName;
                 DiscoverHashesPS();
                 UpdateStatusIndicators();
+                UpdateOutputWindow();
             }
         }
 
@@ -111,6 +114,7 @@ namespace DataGuardApp
                     selectedFile = files[0];
                     DiscoverHashesPS();
                     UpdateStatusIndicators();
+                    UpdateOutputWindow();
                 }
             }
         }
@@ -266,7 +270,7 @@ namespace DataGuardApp
             UpdateStatusColour(indicatorSHA512, statusSHA512);
         }
 
-        // Change indicator colour based on status
+        // Change rivet indicator colour based on status
         private void UpdateStatusColour(System.Windows.Shapes.Ellipse indicator, string status)
         {
             Brush brush = status.ToLower() switch
@@ -278,6 +282,62 @@ namespace DataGuardApp
             };
 
             indicator.Fill = brush;
+        }
+
+        // Visual output for text output window
+        private void UpdateOutputWindow()
+        {
+            var expected = LoadReferenceHashes();
+
+            string statusMD5 = (!expected.TryGetValue("MD5", out var expectedMD5) || string.IsNullOrWhiteSpace(expectedMD5))
+                ? "unknown"
+                : (md5Hash.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+
+            string statusSHA1 = (!expected.TryGetValue("SHA1", out var expectedSHA1) || string.IsNullOrWhiteSpace(expectedSHA1))
+                ? "unknown"
+                : (sha1Hash.Equals(expectedSHA1, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+
+            string statusSHA256 = (!expected.TryGetValue("SHA256", out var expectedSHA256) || string.IsNullOrWhiteSpace(expectedSHA256))
+                ? "unknown"
+                : (sha256Hash.Equals(expectedSHA256, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+
+            string statusSHA512 = (!expected.TryGetValue("SHA512", out var expectedSHA512) || string.IsNullOrWhiteSpace(expectedSHA512))
+                ? "unknown"
+                : (sha512Hash.Equals(expectedSHA512, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+
+            StringBuilder sb = new StringBuilder();
+
+            // To include current date and time
+            string currentTime = DateTime.Now.ToString("g");
+
+            // Output string for the text output window            
+            sb.AppendLine($"File:   {Path.GetFileName(selectedFile)}");
+            sb.AppendLine($"MD5:    {statusMD5}");
+            sb.AppendLine($"SHA1:   {statusSHA1}");
+            sb.AppendLine($"SHA256: {statusSHA256}");
+            sb.AppendLine($"SHA512: {statusSHA512}");
+            sb.AppendLine($"Tested On: {currentTime}");
+            sb.AppendLine(new string('-', 20));
+
+            // Append to the output TextBox and scroll to the end
+            PrependOutput(sb.ToString());
+        }
+
+        // Event handler to show the most recent file tested in the textbox up the top
+        private void PrependOutput(string text)
+        {
+            // Create a new chunk of text with the output text
+            Paragraph newParagraph = new Paragraph(new Run(text));
+
+            // If there is already content in the text box, insert before the first block; otherwise, add it
+            if (outputTextBox.Document.Blocks.FirstBlock != null)
+            {
+                outputTextBox.Document.Blocks.InsertBefore(outputTextBox.Document.Blocks.FirstBlock, newParagraph);
+            }
+            else
+            {
+                outputTextBox.Document.Blocks.Add(newParagraph);
+            }
         }
 
     }
