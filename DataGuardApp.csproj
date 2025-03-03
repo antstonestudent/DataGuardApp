@@ -11,6 +11,9 @@
 
   <ItemGroup>
     <None Remove="resources\logo.png" />
+    <None Remove="testfile\TestHashes.bat" />
+    <None Remove="testfile\TestHashes.txt" />
+    <None Remove="testfile\TestHashes2.bat" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +22,9 @@
 
   <ItemGroup>
     <Resource Include="resources\logo.png" />
+    <Content Include="testfile\TestHashes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
