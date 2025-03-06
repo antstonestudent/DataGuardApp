@@ -1,18 +1,18 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Win32;
+using System.Diagnostics;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.IO;
-using System.Text;
-using Microsoft.Win32;
-using System.Windows.Documents;
 
 namespace DataGuardApp
 {
     public partial class MainWindow : Window
     {
         private string selectedFile = string.Empty; // Function that stores the path of the selected file
-        private string hashStatus = "NotComputed";
         private bool columnsVisible = false; // Function that controls collapsible panel visibility
         private string md5Hash = string.Empty;
         private string sha1Hash = string.Empty;
@@ -49,7 +49,7 @@ namespace DataGuardApp
         }
 
         // Event for the collapsible instructions panel
-        private void Polygon_MouseDown(object sender, MouseButtonEventArgs e)
+        private void TopBar_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (columnsVisible)
             {
@@ -66,8 +66,10 @@ namespace DataGuardApp
             columnsVisible = !columnsVisible;
         }
 
-        private void FileButton_Click(object sender, RoutedEventArgs e) // To open file explorer and select file
+        private async void FileButton_Click(object sender, RoutedEventArgs e) // To open file explorer and select file
         {
+            NoSelectedFile();
+
             var openFileDialog = new OpenFileDialog
             {
                 DefaultExt = ".bat", // Default extension
@@ -78,7 +80,20 @@ namespace DataGuardApp
             if (result == true)
             {
                 selectedFile = openFileDialog.FileName;
-                DiscoverHashesPS();
+                ResetProgressBar();
+
+                var progressReporter = new Progress<double>(percent =>
+                {
+                    UpdateProgressBar(percent);
+                });
+
+                // Process the file while reporting progress
+                await ComputeHashesSelectedFile(selectedFile, progressReporter);
+
+                // Progress bar is set to 100% after the processing completes
+                UpdateProgressBar(100);
+
+                // Update Indicators and Output window
                 UpdateStatusIndicators();
                 UpdateOutputWindow();
             }
@@ -98,8 +113,10 @@ namespace DataGuardApp
         }
 
         // Drop event handler - processes the dropped file
-        private void FileButton_Drop(object sender, DragEventArgs e)
+        private async void FileButton_Drop(object sender, DragEventArgs e)
         {
+            NoSelectedFile();
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 // Retrieve the array of dropped files
@@ -112,157 +129,152 @@ namespace DataGuardApp
                         return;
                     }
                     selectedFile = files[0];
-                    DiscoverHashesPS();
+                    ResetProgressBar();
+
+                    var progressReporter = new Progress<double>(percent =>
+                    {
+                        UpdateProgressBar(percent);
+                    });
+
+                    await ComputeHashesSelectedFile(selectedFile, progressReporter);
+
+                    UpdateProgressBar(100);
+                    
                     UpdateStatusIndicators();
                     UpdateOutputWindow();
                 }
             }
         }
 
-        private Dictionary<string, string> LoadReferenceHashes()
+        private void NoSelectedFile()
         {
-            // Adjust the relative path as needed (this example assumes the file is in a folder named "testfile" at the project level)
-            string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "testfile", "TestHashes.txt");
-            var referenceHashes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(selectedFile) || !File.Exists(selectedFile))
+            {
+                UpdateProgressBar(100);
+                return;
+            }
+        }
+
+        public class FileChecksumInfo
+        {
+            public string FileName { get; set; } = string.Empty;
+            public string MD5 { get; set; } = string.Empty;
+            public string SHA1 { get; set; } = string.Empty;
+            public string SHA256 { get; set; } = string.Empty;
+            public string SHA512 { get; set; } = string.Empty;
+        }
+
+        // Loads the csv document to compare the computed hashes against (batch files in testfile folder, or a few selected windows iso files)
+        private List<FileChecksumInfo> LoadReferenceHashesFromCsv()
+        {
+            string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "resources", "checksums.csv");
+            var fileChecksumList = new List<FileChecksumInfo>();
 
             if (!File.Exists(filePath))
             {
-                MessageBox.Show($"Reference hash file not found at: {filePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return referenceHashes;
+                MessageBox.Show($"Reference file not fount at: {filePath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return fileChecksumList;
             }
 
-            foreach (var line in File.ReadAllLines(filePath))
+            // Read all lines from the CSV
+            string[] lines = File.ReadAllLines(filePath);
+
+            foreach (var line in lines)
             {
-                // Expecting format: "Algorithm: hash"
-                var parts = line.Split(new[] { ':' }, 2);
-                if (parts.Length == 2)
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                // Skip header row if present
+                if (line.StartsWith("FileName", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                // Split the line by comma
+                var parts = line.Split(',');
+                if (parts.Length >= 5)
                 {
-                    string algorithm = parts[0].Trim();
-                    string expectedHash = parts[1].Trim().ToLowerInvariant();
-                    referenceHashes[algorithm] = expectedHash;
-                }
-            }
-
-            return referenceHashes;
-        }
-
-        // Discover hashes of selectedFile using silent PowerShell
-        private void DiscoverHashesPS()
-        {
-            // Check that a valid file has been selected
-            if (string.IsNullOrEmpty(selectedFile) || !File.Exists(selectedFile))
-            {
-                hashStatus = "No file selected";
-                return;
-            }
-
-            // Construct a PowerShell command that outputs the four hash values on separate lines
-            string psCommand =  $"& {{ " +
-                                $"Write-Output (Get-FileHash -Path '{selectedFile}' -Algorithm MD5).Hash; " +
-                                $"Write-Output (Get-FileHash -Path '{selectedFile}' -Algorithm SHA1).Hash; " +
-                                $"Write-Output (Get-FileHash -Path '{selectedFile}' -Algorithm SHA256).Hash; " +
-                                $"Write-Output (Get-FileHash -Path '{selectedFile}' -Algorithm SHA512).Hash; " +
-                                $"}}";
-
-            var psi = new ProcessStartInfo
-            {
-                FileName = "powershell",
-                Arguments = $"-NoProfile -WindowStyle Hidden -Command \"{psCommand}\"",
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            try
-            {
-                Process? process = Process.Start(psi);
-                if (process == null)
-                {
-                    hashStatus = "Error";
-                    return;
-                }
-
-                using (process)
-                {
-                    // Read all output from PowerShell
-                    string output = process.StandardOutput.ReadToEnd();
-                    process.WaitForExit();
-
-                    // Split the output into lines
-                    string[] lines = output.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-                    // Expecting exactly four lines (one per hash algorithm)
-                    if (lines.Length < 4)
+                    fileChecksumList.Add(new FileChecksumInfo
                     {
-                        hashStatus = "Incomplete hash data";
-                        return;
-                    }
-
-                    // Store each computed hash in lowercase for comparison purposes
-                    md5Hash = lines[0].Trim().ToLowerInvariant();
-                    sha1Hash = lines[1].Trim().ToLowerInvariant();
-                    sha256Hash = lines[2].Trim().ToLowerInvariant();
-                    sha512Hash = lines[3].Trim().ToLowerInvariant();
-
-                    var expected = LoadReferenceHashes(); // Loads from testfile\TestHashes.txt
-
-                    string statusMD5 = (!expected.TryGetValue("MD5", out var expectedMD5) || string.IsNullOrWhiteSpace(expectedMD5))
-                        ? "unknown"
-                        : (md5Hash.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase) ? "OK" : "Missing");
-
-                    string statusSHA1 = (!expected.TryGetValue("SHA1", out var expectedSHA1) || string.IsNullOrWhiteSpace(expectedSHA1))
-                        ? "unknown"
-                        : (sha1Hash.Equals(expectedSHA1, StringComparison.OrdinalIgnoreCase) ? "OK" : "Missing");
-
-                    string statusSHA256 = (!expected.TryGetValue("SHA256", out var expectedSHA256) || string.IsNullOrWhiteSpace(expectedSHA256))
-                        ? "unknown"
-                        : (sha256Hash.Equals(expectedSHA256, StringComparison.OrdinalIgnoreCase) ? "OK" : "Missing");
-
-                    string statusSHA512 = (!expected.TryGetValue("SHA512", out var expectedSHA512) || string.IsNullOrWhiteSpace(expectedSHA512))
-                        ? "unknown"
-                        : (sha512Hash.Equals(expectedSHA512, StringComparison.OrdinalIgnoreCase) ? "OK" : "Missing");
-
-                    // Output the computed hashes to the debug console
-                    Debug.WriteLine($"MD5:      {md5Hash} ({statusMD5})");
-                    Debug.WriteLine($"SHA1:     {sha1Hash} ({statusSHA1})");
-                    Debug.WriteLine($"SHA256:   {sha256Hash} ({statusSHA256})");
-                    Debug.WriteLine($"SHA512:   {sha512Hash} ({statusSHA512})");
-
-
-                    // Set status flag based on whether all hashes were successfully computed
-                    hashStatus = (string.IsNullOrEmpty(md5Hash) ||
-                                 string.IsNullOrEmpty(sha1Hash) ||
-                                 string.IsNullOrEmpty(sha256Hash) ||
-                                 string.IsNullOrEmpty(sha512Hash))
-                                 ? "Hash missing"
-                                 : "OK";
+                        FileName = parts[0].Trim(),
+                        MD5 = parts[1].Trim().ToLowerInvariant(),
+                        SHA1 = parts[2].Trim().ToLowerInvariant(),
+                        SHA256 = parts[3].Trim().ToLowerInvariant(),
+                        SHA512 = parts[4].Trim().ToLowerInvariant(),
+                    });
                 }
             }
-            catch (Exception)
-            {
-                hashStatus = "Error";
-            }
+            return fileChecksumList;
         }
+        
+        // Discover hashes of selectedFile using background thread in chunks
+        private async Task ComputeHashesSelectedFile(string selectedFile, IProgress<double> progress, int bufferSize = 65536) // 64KB
+        {
+            NoSelectedFile();
 
+            using FileStream stream = File.OpenRead(selectedFile);
+            long totalBytes = stream.Length;
+            long processedBytes = 0;
+
+            using var md5 = MD5.Create();
+            using var sha1 = SHA1.Create();
+            using var sha256 = SHA256.Create();
+            using var sha512 = SHA512.Create();
+            byte[] buffer = new byte[bufferSize];
+            int bytesRead;
+            
+            while ((bytesRead = await stream.ReadAsync(buffer, 0, bufferSize)) > 0)
+            {
+                // Processing of the current chunk in each algorithm
+                md5.TransformBlock(buffer, 0, bytesRead, null, 0);
+                UpdateStatusColour(indicatorMD5, "processing");
+                sha1.TransformBlock(buffer, 0, bytesRead, null, 0);
+                UpdateStatusColour(indicatorSHA1, "processing");
+                sha256.TransformBlock(buffer, 0, bytesRead, null, 0);
+                UpdateStatusColour(indicatorSHA256, "processing");
+                sha512.TransformBlock(buffer, 0, bytesRead, null, 0);
+                UpdateStatusColour(indicatorSHA512, "processing");
+
+                processedBytes += bytesRead;
+                // Report progress as a percentage
+                progress.Report((double)processedBytes / totalBytes * 100);
+            }      
+                        
+            // Finalize hash computation
+            md5.TransformFinalBlock(buffer, 0, 0);            
+            sha1.TransformFinalBlock(buffer, 0, 0);            
+            sha256.TransformFinalBlock(buffer, 0, 0);            
+            sha512.TransformFinalBlock(buffer, 0, 0);            
+
+            // Convert the computed hash byte arrays to strings
+            md5Hash = Convert.ToHexStringLower(md5.Hash ?? []);
+            sha1Hash = Convert.ToHexStringLower(sha1.Hash ?? []);
+            sha256Hash = Convert.ToHexStringLower(sha256.Hash ?? []);
+            sha512Hash = Convert.ToHexStringLower(sha512.Hash ?? []);            
+        }
+        
         // Update status indicators
         private void UpdateStatusIndicators()
         {
-            var expected = LoadReferenceHashes(); // Loads from testfile\TestHashes.txt
+            var fileList = LoadReferenceHashesFromCsv(); // Loads from resources\checksums.csv into a list
 
-            string statusMD5 = (!expected.TryGetValue("MD5", out var expectedMD5) || string.IsNullOrWhiteSpace(expectedMD5))
-                ? "unknown"
-                : (md5Hash.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+            // Search for an entry matching the selected file name
+            var reference = fileList.Find(info =>
+                info.FileName.Equals(Path.GetFileName(selectedFile), StringComparison.OrdinalIgnoreCase));
 
-            string statusSHA1 = (!expected.TryGetValue("SHA1", out var expectedSHA1) || string.IsNullOrWhiteSpace(expectedSHA1))
+            // If a reference entry is found, compare each hash, otherwise mark as unknown
+            string statusMD5 = reference == null || string.IsNullOrWhiteSpace(reference.MD5)
                 ? "unknown"
-                : (sha1Hash.Equals(expectedSHA1, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+                : (md5Hash.Equals(reference.MD5, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
 
-            string statusSHA256 = (!expected.TryGetValue("SHA256", out var expectedSHA256) || string.IsNullOrWhiteSpace(expectedSHA256))
+            string statusSHA1 = reference == null || string.IsNullOrWhiteSpace(reference.SHA1)
                 ? "unknown"
-                : (sha256Hash.Equals(expectedSHA256, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+                : (sha1Hash.Equals(reference.SHA1, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
 
-            string statusSHA512 = (!expected.TryGetValue("SHA512", out var expectedSHA512) || string.IsNullOrWhiteSpace(expectedSHA512))
+            string statusSHA256 = reference == null || string.IsNullOrWhiteSpace(reference.SHA256)
                 ? "unknown"
-                : (sha512Hash.Equals(expectedSHA512, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+                : (sha256Hash.Equals(reference.SHA256, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+
+            string statusSHA512 = reference == null || string.IsNullOrWhiteSpace(reference.SHA512)
+                ? "unknown"
+                : (sha512Hash.Equals(reference.SHA512, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
 
             UpdateStatusColour(indicatorMD5, statusMD5);
             UpdateStatusColour(indicatorSHA1, statusSHA1);
@@ -275,9 +287,10 @@ namespace DataGuardApp
         {
             Brush brush = status.ToLower() switch
             {
-                "green" => Brushes.Green,
+                "green" => Brushes.Chartreuse,
                 "red" => Brushes.Red,
-                "unknown" => Brushes.Yellow,
+                "processing" => Brushes.Yellow,
+                "unknown" => Brushes.Orange,
                 _ => Brushes.Gray
             };
 
@@ -287,28 +300,38 @@ namespace DataGuardApp
         // Visual output for text output window
         private void UpdateOutputWindow()
         {
-            var expected = LoadReferenceHashes();
+            var fileList = LoadReferenceHashesFromCsv();
 
-            string statusMD5 = (!expected.TryGetValue("MD5", out var expectedMD5) || string.IsNullOrWhiteSpace(expectedMD5))
-                ? "unknown"
-                : (md5Hash.Equals(expectedMD5, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+            var reference = fileList.FirstOrDefault(info =>
+                info.FileName.Equals(Path.GetFileName(selectedFile), StringComparison.OrdinalIgnoreCase));
 
-            string statusSHA1 = (!expected.TryGetValue("SHA1", out var expectedSHA1) || string.IsNullOrWhiteSpace(expectedSHA1))
-                ? "unknown"
-                : (sha1Hash.Equals(expectedSHA1, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+            string statusMD5, statusSHA1, statusSHA256, statusSHA512;
 
-            string statusSHA256 = (!expected.TryGetValue("SHA256", out var expectedSHA256) || string.IsNullOrWhiteSpace(expectedSHA256))
-                ? "unknown"
-                : (sha256Hash.Equals(expectedSHA256, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+            if (reference == null)
+            {
+                statusMD5 = statusSHA1 = statusSHA256 = statusSHA512 = "unknown";
+            }
+            else
+            {
+                statusMD5 = string.IsNullOrWhiteSpace(reference.MD5)
+                    ? "unknown"
+                    : (md5Hash.Equals(reference.MD5, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
 
-            string statusSHA512 = (!expected.TryGetValue("SHA512", out var expectedSHA512) || string.IsNullOrWhiteSpace(expectedSHA512))
-                ? "unknown"
-                : (sha512Hash.Equals(expectedSHA512, StringComparison.OrdinalIgnoreCase) ? "Match" : "Mismatch");
+                statusSHA1 = string.IsNullOrWhiteSpace(reference.SHA1)
+                    ? "unknown"
+                    : (sha1Hash.Equals(reference.SHA1, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
 
-            StringBuilder sb = new StringBuilder();
+                statusSHA256 = string.IsNullOrWhiteSpace(reference.SHA256)
+                    ? "unknown"
+                    : (sha256Hash.Equals(reference.SHA256, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
 
-            // To include current date and time
-            string currentTime = DateTime.Now.ToString("g");
+                statusSHA512 = string.IsNullOrWhiteSpace(reference.SHA512)
+                    ? "unknown"
+                    : (sha512Hash.Equals(reference.SHA512, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
+            }            
+
+            StringBuilder sb = new StringBuilder();            
+            string currentTime = DateTime.Now.ToString("g"); // To include current date and time
 
             // Output string for the text output window            
             sb.AppendLine($"File:   {Path.GetFileName(selectedFile)}");
@@ -317,7 +340,7 @@ namespace DataGuardApp
             sb.AppendLine($"SHA256: {statusSHA256}");
             sb.AppendLine($"SHA512: {statusSHA512}");
             sb.AppendLine($"Tested On: {currentTime}");
-            sb.AppendLine(new string('-', 20));
+            sb.AppendLine(new string('-', 18));
 
             // Append to the output TextBox and scroll to the end
             PrependOutput(sb.ToString());
@@ -338,6 +361,19 @@ namespace DataGuardApp
             {
                 outputTextBox.Document.Blocks.Add(newParagraph);
             }
+        }
+
+        // Event handler for a method to convert progress percentage into a gradient offset
+        private void UpdateProgressBar(double progressPercentage)
+        {
+            double progress = Math.Max(0, Math.Min(190, progressPercentage)) / 100.0;
+            progressStop.Offset = progress;
+        }
+
+        // Event handler to reset the progress bar for each new file
+        private void ResetProgressBar()
+        {
+            progressStop.Offset = 0;
         }
 
     }
