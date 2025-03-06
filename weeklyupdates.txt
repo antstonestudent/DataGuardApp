@@ -7,15 +7,17 @@ redesigned checksum display from Figma. Decided that the hashes are too long to 
 added main button in the middle of the ui surrounded by the traffic light indicators and the buttons for download link and link to new version of file.
 
 17-23 February
-
+worked on hash codes and main file to integrate hash codes
 24 Feb - 2 March
-
+worked on hash codes and uploaded, continued to work on integration
 3-9 March
+
 Changed the powershell script for selectedFile processing into C# background task to allow larger files to be processed
 added progress gradient bar for visual UI updates for user
 changed testhashes.txt to checksum.csv for storing more hash values
 added graphical UI to the application
 
+currently working on the function to automatically identify where the selected file was downloaded from and the functionality to check if there is a more recent version of the file 
 
 10-16 March
 
