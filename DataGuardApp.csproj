@@ -10,7 +10,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="hashing\**" />
+    <EmbeddedResource Remove="hashing\**" />
+    <None Remove="hashing\**" />
+    <Page Remove="hashing\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="resources\checksums.csv" />
     <None Remove="resources\logo.png" />
+    <None Remove="resources\new-document.png" />
+    <None Remove="resources\pointer.png" />
+    <None Remove="resources\rec.png" />
     <None Remove="testfile\TestHashes.bat" />
     <None Remove="testfile\TestHashes.txt" />
     <None Remove="testfile\TestHashes2.bat" />
@@ -21,10 +32,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="resources\logo.png" />
-    <Content Include="testfile\TestHashes.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="resources\checksums.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="resources\logo.png" />
+    <Resource Include="resources\new-document.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\pointer.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="resources\rec.png">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="testfile\" />
   </ItemGroup>
 
 </Project>
