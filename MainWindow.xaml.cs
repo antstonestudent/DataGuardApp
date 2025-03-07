@@ -68,8 +68,6 @@ namespace DataGuardApp
 
         private async void FileButton_Click(object sender, RoutedEventArgs e) // To open file explorer and select file
         {
-            NoSelectedFile();
-
             var openFileDialog = new OpenFileDialog
             {
                 DefaultExt = ".bat", // Default extension
@@ -96,6 +94,10 @@ namespace DataGuardApp
                 // Update Indicators and Output window
                 UpdateStatusIndicators();
                 UpdateOutputWindow();
+
+                // Wait 5 seconds then reset progress bar
+                await Task.Delay(5000);
+                await SlowlyResetProgressBarAsync();
             }
         }
 
@@ -115,8 +117,6 @@ namespace DataGuardApp
         // Drop event handler - processes the dropped file
         private async void FileButton_Drop(object sender, DragEventArgs e)
         {
-            NoSelectedFile();
-
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 // Retrieve the array of dropped files
@@ -129,6 +129,7 @@ namespace DataGuardApp
                         return;
                     }
                     selectedFile = files[0];
+
                     ResetProgressBar();
 
                     var progressReporter = new Progress<double>(percent =>
@@ -142,16 +143,36 @@ namespace DataGuardApp
                     
                     UpdateStatusIndicators();
                     UpdateOutputWindow();
+
+                    // Wait 5 seconds then reset progress bar
+                    await Task.Delay(5000);
+                    await SlowlyResetProgressBarAsync();
                 }
             }
         }
 
-        private void NoSelectedFile()
+        private void ResetProgressBar()
         {
-            if (string.IsNullOrWhiteSpace(selectedFile) || !File.Exists(selectedFile))
+            progressBar.Value = 0;
+            topStop.Offset = 0;
+            bottomStop.Offset = 0;
+        }
+
+        private void UpdateProgressBar(double percent)
+        {
+            progressBar.Value = percent;
+            double normalized = percent / 100.0;
+            topStop.Offset = normalized;
+            bottomStop.Offset = normalized;
+        }
+
+        private async Task SlowlyResetProgressBarAsync()
+        {
+            while (progressBar.Value > 0)
             {
-                UpdateProgressBar(100);
-                return;
+                double newValue = progressBar.Value - 1;
+                UpdateProgressBar(newValue);
+                await Task.Delay(50);
             }
         }
 
@@ -207,8 +228,6 @@ namespace DataGuardApp
         // Discover hashes of selectedFile using background thread in chunks
         private async Task ComputeHashesSelectedFile(string selectedFile, IProgress<double> progress, int bufferSize = 65536) // 64KB
         {
-            NoSelectedFile();
-
             using FileStream stream = File.OpenRead(selectedFile);
             long totalBytes = stream.Length;
             long processedBytes = 0;
@@ -361,19 +380,6 @@ namespace DataGuardApp
             {
                 outputTextBox.Document.Blocks.Add(newParagraph);
             }
-        }
-
-        // Event handler for a method to convert progress percentage into a gradient offset
-        private void UpdateProgressBar(double progressPercentage)
-        {
-            double progress = Math.Max(0, Math.Min(190, progressPercentage)) / 100.0;
-            progressStop.Offset = progress;
-        }
-
-        // Event handler to reset the progress bar for each new file
-        private void ResetProgressBar()
-        {
-            progressStop.Offset = 0;
         }
 
     }
