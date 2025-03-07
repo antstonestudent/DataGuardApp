@@ -240,7 +240,7 @@
                                            VerticalAlignment="Center"
                                            Opacity="0.33"/>
                                     <Image Source="pack://application:,,,/resources/rec.png" Width="100" Height="100" Opacity="0.2"/>
-                                </Grid>                                
+                                </Grid>
                             </ControlTemplate>
                         </Button.Template>
                         <Button.ToolTip>
@@ -319,20 +319,26 @@
                                  Background="#FF171717"/>
                 </Border>
 
-                <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Width="20" Height="190">
-                    <Border x:Name="ProgressBar"
-                            BorderBrush="#FFD4D4D4"
-                            BorderThickness="1,0,1,1"
+                <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Width="20" Height="200">
+                    <Border BorderBrush="#FFD4D4D4"
+                            BorderThickness="1,0,1,6"
                             CornerRadius="0,0,10,10">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop x:Name="progressStop" Color="Chartreuse" Offset="0"/>
-                                <GradientStop Color="White" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
+                        <ProgressBar x:Name="progressBar"
+                                     Minimum="0" Maximum="100" Value="0"
+                                     Foreground="Transparent">
+                            <ProgressBar.RenderTransform>
+                                <RotateTransform Angle="0"/>
+                            </ProgressBar.RenderTransform>
+                            <ProgressBar.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop x:Name="topStop" Color="White" Offset="0"/>
+                                    <GradientStop x:Name="bottomStop" Color="Chartreuse" Offset="0"/>                                                                        
+                                </LinearGradientBrush>
+                            </ProgressBar.Background>
+                        </ProgressBar>
                     </Border>
 
-                    <Rectangle Width="20" Height="180" VerticalAlignment="Top">
+                    <Rectangle Width="20" Height="190" VerticalAlignment="Top">
                         <Rectangle.Fill>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                 <GradientStop Color="#7F000000" Offset="0"/>

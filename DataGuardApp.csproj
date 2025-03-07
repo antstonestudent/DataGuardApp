@@ -10,9 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Converters\**" />
     <Compile Remove="hashing\**" />
+    <EmbeddedResource Remove="Converters\**" />
     <EmbeddedResource Remove="hashing\**" />
+    <None Remove="Converters\**" />
     <None Remove="hashing\**" />
+    <Page Remove="Converters\**" />
     <Page Remove="hashing\**" />
   </ItemGroup>
 
