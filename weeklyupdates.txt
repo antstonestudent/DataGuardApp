@@ -20,7 +20,9 @@ added graphical UI to the application
 currently working on the function to automatically identify where the selected file was downloaded from and the functionality to check if there is a more recent version of the file 
 
 10-16 March
-
+added more graphical changes.
+added instructions to the top display.
+added attributions for using images from artists in readme file
 17-23 March
 
 24-30 March
