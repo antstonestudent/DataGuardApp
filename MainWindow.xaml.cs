@@ -320,7 +320,7 @@ namespace DataGuardApp
             {
                 "match" => Brushes.Chartreuse,
                 "untrusted" => Brushes.Red,
-                "processing" => Brushes.Yellow,
+                "processing" => Brushes.DarkOrange,
                 _ => Brushes.DarkGray
             };
 
