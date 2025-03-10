@@ -23,6 +23,7 @@
   <ItemGroup>
     <None Remove="resources\checksums.csv" />
     <None Remove="resources\logo.png" />
+    <None Remove="resources\metal-surface.png" />
     <None Remove="resources\new-document.png" />
     <None Remove="resources\pointer.png" />
     <None Remove="resources\rec.png" />
@@ -40,6 +41,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Resource Include="resources\logo.png" />
+    <Resource Include="resources\metal-surface.png" />
     <Resource Include="resources\new-document.png">
       <CopyToOutputDirectory></CopyToOutputDirectory>
     </Resource>

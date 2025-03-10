@@ -4,6 +4,8 @@
              xmlns:local="clr-namespace:DataGuardApp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-
+        <ImageBrush x:Key="ForgedMetalBrush"
+            ImageSource="pack://application:,,,/resources/metal-surface.png"
+            Stretch="UniformToFill" />
     </Application.Resources>
 </Application>

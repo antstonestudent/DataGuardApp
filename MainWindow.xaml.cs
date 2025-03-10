@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace DataGuardApp
 {
@@ -183,6 +184,7 @@ namespace DataGuardApp
             public string SHA1 { get; set; } = string.Empty;
             public string SHA256 { get; set; } = string.Empty;
             public string SHA512 { get; set; } = string.Empty;
+            public DateTime? LastProcessed { get; set; } = null;
         }
 
         // Loads the csv document to compare the computed hashes against (batch files in testfile folder, or a few selected windows iso files)
@@ -212,14 +214,24 @@ namespace DataGuardApp
                 var parts = line.Split(',');
                 if (parts.Length >= 5)
                 {
-                    fileChecksumList.Add(new FileChecksumInfo
+                    var info = new FileChecksumInfo
                     {
                         FileName = parts[0].Trim(),
                         MD5 = parts[1].Trim().ToLowerInvariant(),
                         SHA1 = parts[2].Trim().ToLowerInvariant(),
                         SHA256 = parts[3].Trim().ToLowerInvariant(),
                         SHA512 = parts[4].Trim().ToLowerInvariant(),
-                    });
+                    };
+
+                    if (parts.Length >= 6)
+                    {
+                        if (DateTime.TryParse(parts[5].Trim(), out DateTime lastProcessed))
+                        {
+                            info.LastProcessed = lastProcessed;
+                        }
+                    }
+
+                    fileChecksumList.Add(info);
                 }
             }
             return fileChecksumList;
@@ -278,22 +290,22 @@ namespace DataGuardApp
             var reference = fileList.Find(info =>
                 info.FileName.Equals(Path.GetFileName(selectedFile), StringComparison.OrdinalIgnoreCase));
 
-            // If a reference entry is found, compare each hash, otherwise mark as unknown
-            string statusMD5 = reference == null || string.IsNullOrWhiteSpace(reference.MD5)
-                ? "unknown"
-                : (md5Hash.Equals(reference.MD5, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+            // If a reference entry is found, compare each hash, otherwise mark as untrusted
+            string statusMD5 = (reference != null && !string.IsNullOrWhiteSpace(reference.MD5) &&
+                                md5Hash.Equals(reference.MD5, StringComparison.OrdinalIgnoreCase))
+                                ? "match" : "untrusted";
 
-            string statusSHA1 = reference == null || string.IsNullOrWhiteSpace(reference.SHA1)
-                ? "unknown"
-                : (sha1Hash.Equals(reference.SHA1, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+            string statusSHA1 = (reference != null && !string.IsNullOrWhiteSpace(reference.SHA1) &&
+                                sha1Hash.Equals(reference.SHA1, StringComparison.OrdinalIgnoreCase))
+                                ? "match" : "untrusted";
 
-            string statusSHA256 = reference == null || string.IsNullOrWhiteSpace(reference.SHA256)
-                ? "unknown"
-                : (sha256Hash.Equals(reference.SHA256, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+            string statusSHA256 = (reference != null && !string.IsNullOrWhiteSpace(reference.SHA256) &&
+                                sha256Hash.Equals(reference.SHA256, StringComparison.OrdinalIgnoreCase))
+                                ? "match" : "untrusted";
 
-            string statusSHA512 = reference == null || string.IsNullOrWhiteSpace(reference.SHA512)
-                ? "unknown"
-                : (sha512Hash.Equals(reference.SHA512, StringComparison.OrdinalIgnoreCase) ? "green" : "red");
+            string statusSHA512 = (reference != null && !string.IsNullOrWhiteSpace(reference.SHA512) &&
+                                sha512Hash.Equals(reference.SHA512, StringComparison.OrdinalIgnoreCase))
+                                ? "match" : "untrusted";
 
             UpdateStatusColour(indicatorMD5, statusMD5);
             UpdateStatusColour(indicatorSHA1, statusSHA1);
@@ -301,20 +313,20 @@ namespace DataGuardApp
             UpdateStatusColour(indicatorSHA512, statusSHA512);
         }
 
-        // Change rivet indicator colour based on status
+        // Change indicator colours based on status
         private void UpdateStatusColour(System.Windows.Shapes.Ellipse indicator, string status)
         {
             Brush brush = status.ToLower() switch
             {
-                "green" => Brushes.Chartreuse,
-                "red" => Brushes.Red,
+                "match" => Brushes.Chartreuse,
+                "untrusted" => Brushes.Red,
                 "processing" => Brushes.Yellow,
-                "unknown" => Brushes.Orange,
-                _ => Brushes.Gray
+                _ => Brushes.DarkGray
             };
 
             indicator.Fill = brush;
-        }
+        }                
+        
 
         // Visual output for text output window
         private void UpdateOutputWindow()
@@ -328,36 +340,36 @@ namespace DataGuardApp
 
             if (reference == null)
             {
-                statusMD5 = statusSHA1 = statusSHA256 = statusSHA512 = "unknown";
+                statusMD5 = statusSHA1 = statusSHA256 = statusSHA512 = "untrusted";
             }
             else
             {
-                statusMD5 = string.IsNullOrWhiteSpace(reference.MD5)
-                    ? "unknown"
-                    : (md5Hash.Equals(reference.MD5, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
+                statusMD5 = (reference != null && !string.IsNullOrWhiteSpace(reference.MD5) &&
+                                md5Hash.Equals(reference.MD5, StringComparison.OrdinalIgnoreCase))
+                                ? "match" : "untrusted";
 
-                statusSHA1 = string.IsNullOrWhiteSpace(reference.SHA1)
-                    ? "unknown"
-                    : (sha1Hash.Equals(reference.SHA1, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
+                statusSHA1 = (reference != null && !string.IsNullOrWhiteSpace(reference.SHA1) &&
+                                    sha1Hash.Equals(reference.SHA1, StringComparison.OrdinalIgnoreCase))
+                                    ? "match" : "untrusted";
 
-                statusSHA256 = string.IsNullOrWhiteSpace(reference.SHA256)
-                    ? "unknown"
-                    : (sha256Hash.Equals(reference.SHA256, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
+                statusSHA256 = (reference != null && !string.IsNullOrWhiteSpace(reference.SHA256) &&
+                                    sha256Hash.Equals(reference.SHA256, StringComparison.OrdinalIgnoreCase))
+                                    ? "match" : "untrusted";
 
-                statusSHA512 = string.IsNullOrWhiteSpace(reference.SHA512)
-                    ? "unknown"
-                    : (sha512Hash.Equals(reference.SHA512, StringComparison.OrdinalIgnoreCase) ? "Matched" : "No hash found");
+                statusSHA512 = (reference != null && !string.IsNullOrWhiteSpace(reference.SHA512) &&
+                                    sha512Hash.Equals(reference.SHA512, StringComparison.OrdinalIgnoreCase))
+                                    ? "match" : "untrusted";
             }            
 
-            StringBuilder sb = new StringBuilder();            
+            StringBuilder sb = new();            
             string currentTime = DateTime.Now.ToString("g"); // To include current date and time
 
             // Output string for the text output window            
-            sb.AppendLine($"File:   {Path.GetFileName(selectedFile)}");
-            sb.AppendLine($"MD5:    {statusMD5}");
-            sb.AppendLine($"SHA1:   {statusSHA1}");
-            sb.AppendLine($"SHA256: {statusSHA256}");
-            sb.AppendLine($"SHA512: {statusSHA512}");
+            sb.AppendLine($"File: {Path.GetFileName(selectedFile)}");
+            sb.AppendLine($"MD5:     {statusMD5}");
+            sb.AppendLine($"SHA1:    {statusSHA1}");
+            sb.AppendLine($"SHA256:  {statusSHA256}");
+            sb.AppendLine($"SHA512:  {statusSHA512}");
             sb.AppendLine($"Tested On: {currentTime}");
             sb.AppendLine(new string('-', 18));
 

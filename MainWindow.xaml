@@ -31,30 +31,35 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="RoundedEdgeButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="#FF7B7B7B"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Width" Value="130"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="5"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        </Style>
     </Window.Resources>
 
     <!-- Base Shield (Main Window) -->
-    <Border BorderBrush="LightGray" BorderThickness="2" CornerRadius="130" Margin="0">
+    <Border BorderBrush="LightGray" BorderThickness="5" CornerRadius="130" Margin="0">
         <Border.Background>
-            <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
-                <GradientStop Color="#FF151515" Offset="0"/>
-                <GradientStop Color="#FF252525" Offset="0.2"/>
-                <GradientStop Color="#FF444444" Offset="0.5"/>
-                <GradientStop Color="#FF252525" Offset="0.8"/>
-                <GradientStop Color="#FF151515" Offset="1"/>
-            </LinearGradientBrush>
+            <VisualBrush>
+                <VisualBrush.Visual>
+                    <Grid Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Border}}"
+                          Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}}">                        
+                        <Rectangle>
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
+                                    <GradientStop Color="#FF080808" Offset="0"/>
+                                    <GradientStop Color="#FF252525" Offset="0.3"/>
+                                    <GradientStop Color="#FF444444" Offset="0.5"/>
+                                    <GradientStop Color="#FF252525" Offset="0.7"/>
+                                    <GradientStop Color="#FF080808" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Rectangle Opacity="0.1">
+                            <Rectangle.Fill>
+                                <ImageBrush ImageSource="pack://application:,,,/resources/metal-surface.png"
+                                            Stretch="UniformToFill"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Grid>
+                </VisualBrush.Visual>
+            </VisualBrush>            
         </Border.Background>
         <Grid ClipToBounds="True">
             <!-- Define Rows in the Grid -->
@@ -75,7 +80,7 @@
             <Grid Grid.Row="0" Height="40" Background="Transparent">
                 <!-- Title Text -->
                 <TextBlock Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="80,0,0,0"
-                           Text="DataGuard" FontSize="16" FontWeight="Bold" Foreground="LightGray" />
+                           Text="DATAGUARD" FontSize="16" FontWeight="Bold" Foreground="LightGray" />
 
                 <!-- Title Bar Buttons -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,80,0">
@@ -105,24 +110,37 @@
                     <ColumnDefinition x:Name="RightColumn" Width="*"/>
                 </Grid.ColumnDefinitions>
                 <!-- Left Column Text -->
-                <TextBlock x:Name="LeftText" Grid.Column="0" Foreground="LightGray" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0" Visibility="Collapsed">
-                    <Run Text="Left Side:"/>
+                <TextBlock x:Name="LeftText" Grid.Column="0" Foreground="LightGray" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0" Visibility="Collapsed">
+                    <Run Text="Instructions:"/>
                     <LineBreak/>
-                    <Run Text="Line 1 of text."/>
+                    <Run Text="1. Select the file."/>
                     <LineBreak/>
-                    <Run Text="Line 2 of text."/>
+                    <Run Text="2. Wait for file to process."/>
                     <LineBreak/>
-                    <Run Text="Line 3 of text."/>
+                    <Run Text="3. Examine results."/>
                 </TextBlock>
 
-                <TextBlock x:Name="RightText" Grid.Column="2" Foreground="LightGray" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,0,0" Visibility="Collapsed">
-                    <Run Text="Right Side:"/>
+                <TextBlock x:Name="RightText" Grid.Column="2" Foreground="LightGray" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,0" Visibility="Collapsed">
+                    <Run Text="Indicator Colours:"/>
                     <LineBreak/>
-                    <Run Text="Line 1 of text."/>
+                    <InlineUIContainer>
+                        <Ellipse Fill="Chartreuse" Width="10" Height="10" Margin="0,0,5,0"/>
+                    </InlineUIContainer>
+                    <Run Text="Green: Checksum match"/>
                     <LineBreak/>
-                    <Run Text="Line 2 of text."/>
+                    <Run Text="with trusted sources."/>
                     <LineBreak/>
-                    <Run Text="Line 3 of text."/>
+                    <InlineUIContainer>
+                        <Ellipse Fill="Red" Width="10" Height="10" Margin="0,0,5,0"/>
+                    </InlineUIContainer>
+                    <Run Text="Red: Sources indicate no"/>
+                    <LineBreak/>
+                    <Run Text="checksum exists for this file."/>
+                    <LineBreak/>
+                    <InlineUIContainer>
+                        <Ellipse Fill="Yellow" Width="10" Height="10" Margin="0,0,5,0"/>
+                    </InlineUIContainer>
+                    <Run Text="Yellow: Processing file."/>
                 </TextBlock>
 
                 <Grid Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="20" Height="140">
@@ -143,7 +161,7 @@
                             </LinearGradientBrush>
                         </Rectangle.Fill>
                         <Rectangle.ToolTip>
-                            <ToolTip Content="View Instructions"/>
+                            <ToolTip Content="View Instructions" />
                         </Rectangle.ToolTip>
                     </Rectangle>
 
@@ -172,13 +190,13 @@
 
             <!-- Row 3: File Selection, Indicators, and main Buttons -->
             <Grid Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="MD5" FontWeight="Bold" FontSize="16" Foreground="LightGray" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="84,6,0,0" />
-                <TextBlock Text="SHA-1" FontWeight="Bold" FontSize="16" Foreground="LightGray" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,6,70,0" />
+                <TextBlock Text="MD5" FontWeight="Bold" FontSize="16" Foreground="LightGray" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="84,10,0,0" />
+                <TextBlock Text="SHA-1" FontWeight="Bold" FontSize="16" Foreground="LightGray" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,70,0" />
                 <TextBlock Text="SHA-512" FontWeight="Bold" FontSize="16" Foreground="LightGray" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,52,10" />
                 <TextBlock Text="SHA-256" FontWeight="Bold" FontSize="16" Foreground="LightGray" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="54,0,0,10" />
                 <Grid HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0" Grid.Row="3">
                     <!-- The Rounded Rectangle (Body of the Shield) -->
-                    <Border Width="140" VerticalAlignment="Center" Height="160" HorizontalAlignment="Center" CornerRadius="30">
+                    <Border Width="140" VerticalAlignment="Center" Height="160" HorizontalAlignment="Center" CornerRadius="30" BorderBrush="#B2565656" BorderThickness="2">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
                                 <GradientStop Color="#FF7B7B7B" Offset="0"/>
@@ -233,13 +251,24 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Grid>
-                                    <Ellipse Fill="Chartreuse" Stroke="#7F000000" StrokeThickness="4"/>
+                                    <Ellipse Stroke="#7F000000" StrokeThickness="4">
+                                        <Ellipse.Fill>
+                                            <RadialGradientBrush>
+                                                <GradientStop Color="Chartreuse" Offset="0.833"/>
+                                                <GradientStop Color="#FFACFF59" Offset="0.629"/>
+                                                <GradientStop Color="#FFE6FFCE" Offset="0"/>
+                                                <GradientStop Color="#FFC0FF84" Offset="0.058"/>
+                                                <GradientStop Color="#FF428400" Offset="0.935"/>
+                                            </RadialGradientBrush>
+                                        </Ellipse.Fill>
+                                    </Ellipse>
+
                                     <Image Source="pack://application:,,,/resources/pointer.png"
                                            Width="50" Height="50"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Opacity="0.33"/>
-                                    <Image Source="pack://application:,,,/resources/rec.png" Width="100" Height="100" Opacity="0.2"/>
+                                    <Image Source="pack://application:,,,/resources/rec.png" Width="100" Height="100" Opacity="0.15"/>
                                 </Grid>
                             </ControlTemplate>
                         </Button.Template>
@@ -251,37 +280,95 @@
                     <!-- Buttons on the Left and Right of the Rounded Rectangle -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
                         <!-- Left Button -->
-                        <Button Content="Link to&#x0a;Download Source" Width="128" Style="{StaticResource RoundedEdgeButtonStyle}" Margin="70,0" Height="50">
+                        <Button Content="Website&#x0a; Source" Width="128" Height="50" Margin="70,0" Foreground="White" FontFamily="Consolas" FontWeight="Bold" FontSize="14">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border CornerRadius="10,0,0,10">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="1,0" EndPoint="0,0">
-                                                <GradientStop Color="#FF7B7B7B" Offset="0"/>
-                                                <GradientStop Color="#FF7B7B7B" Offset="0.8"/>
-                                                <GradientStop Color="Black" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
+                                    <Grid>
+                                        <!-- Outer rectangle with the gradient background -->
+                                        <Rectangle x:Name="OuterRect">
+                                            <Rectangle.Fill>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Color="#FF080808" Offset="0"/>
+                                                    <GradientStop Color="#FF252525" Offset="0.2"/>
+                                                    <GradientStop Color="#FF444444" Offset="0.5"/>
+                                                    <GradientStop Color="#FF7B7B7B" Offset="0.8"/>
+                                                    <GradientStop Color="#FF7B7B7B" Offset="1"/>
+                                                </LinearGradientBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <Rectangle x:Name="OverlayRect" Opacity="0.4">
+                                            <Rectangle.Fill>
+                                                <ImageBrush ImageSource="pack://application:,,,/resources/metal-surface.png" Stretch="UniformToFill"/>
+                                            </Rectangle.Fill>                                            
+                                        </Rectangle>
+                                        <!-- Inset rectangle acting as an inner border (stroke) -->
+                                        <Border x:Name="InnerBorder" Background="Transparent" BorderBrush="#B2565656" BorderThickness="0,4,0,4"/>
+                                        <!-- Content displayed on top -->
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <!-- Reverse gradient when pressed for a pressed-in look -->
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="OuterRect" Property="Fill">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#FF252525" Offset="0"/>
+                                                        <GradientStop Color="#FF444444" Offset="0.2"/>
+                                                        <GradientStop Color="#FF7B7B7B" Offset="0.5"/>
+                                                        <GradientStop Color="#FF7B7B7B" Offset="0.8"/>
+                                                        <GradientStop Color="#FF7B7B7B" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
 
                         <!-- Right Button -->
-                        <Button Content="New Version&#x0a;Available" Width="128" Style="{StaticResource RoundedEdgeButtonStyle}" Margin="70,0" Height="50">
+                        <Button Content="New&#x0a;Version" Width="128" Height="50" Margin="70,0" Foreground="White" FontFamily="Consolas" FontWeight="Bold" FontSize="14">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border CornerRadius="0,10,10,0">
-                                        <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="Black" Offset="1"/>
-                                                <GradientStop Color="#FF7B7B7B" Offset="0.8"/>
-                                                <GradientStop Color="#FF7B7B7B" Offset="0"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
+                                    <Grid>
+                                        <!-- Outer rectangle with the gradient background -->
+                                        <Rectangle x:Name="OuterRect">
+                                            <Rectangle.Fill>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">                                                
+                                                    <GradientStop Color="#FF7B7B7B" Offset="0"/>
+                                                    <GradientStop Color="#FF7B7B7B" Offset="0.2"/>
+                                                    <GradientStop Color="#FF444444" Offset="0.5"/>
+                                                    <GradientStop Color="#FF252525" Offset="0.8"/>
+                                                    <GradientStop Color="#FF080808" Offset="1"/>                                                   
+                                                </LinearGradientBrush>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <Rectangle x:Name="OverlayRect" Opacity="0.4">
+                                            <Rectangle.Fill>
+                                                <ImageBrush ImageSource="pack://application:,,,/resources/metal-surface.png" Stretch="UniformToFill"/>
+                                            </Rectangle.Fill>
+                                        </Rectangle>
+                                        <!-- Inset rectangle acting as an inner border (stroke) -->
+                                        <Border x:Name="InnerBorder" Background="Transparent" BorderBrush="#B2565656" BorderThickness="0,4,0,4"/>
+                                        <!-- Content displayed on top -->
                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Border>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <!-- Reverse gradient when pressed for a pressed-in look -->
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="OuterRect" Property="Fill">
+                                                <Setter.Value>
+                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                        <GradientStop Color="#FF7B7B7B" Offset="0"/>
+                                                        <GradientStop Color="#FF7B7B7B" Offset="0.2"/>
+                                                        <GradientStop Color="#FF7B7B7B" Offset="0.5"/>
+                                                        <GradientStop Color="#FF444444" Offset="0.8"/>
+                                                        <GradientStop Color="#FF252525" Offset="1"/>
+                                                    </LinearGradientBrush>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
@@ -298,31 +385,53 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Left Column Text -->
-                <Border CornerRadius="10"
-                        BorderBrush="#FFC1C1C1"
-                        BorderThickness="2"
-                        Margin="31,10,10,10" Background="#FF171717" ClipToBounds="True" SnapsToDevicePixels="True">
-                    <RichTextBox x:Name="outputTextBox"
-                                 Grid.Column="0"
-                                 Margin="5,5,5,5"
-                                 IsReadOnly="True"
-                                 VerticalScrollBarVisibility="Hidden"
-                                 AcceptsReturn="True"
-                                 Focusable="False"
-                                 FontSize="12"
-                                 FontFamily="Consolas"
-                                 Foreground="LightGray"
-                                 BorderThickness="0"
-                                 BorderBrush="Transparent"
-                                 FocusVisualStyle="{x:Null}"
-                                 Cursor="ScrollNS"
-                                 Background="#FF171717"/>
-                </Border>
+                <Grid>
+                    <Border CornerRadius="0,0,0,20"
+                            BorderThickness="2"
+                            Margin="31,10,10,10"
+                            Background="#FF292929"
+                            ClipToBounds="True"
+                            SnapsToDevicePixels="True">
+                        <Border.BorderBrush>
+                            <LinearGradientBrush EndPoint="1,0.5" StartPoint="0,0.5">
+                                <GradientStop Color="Black"/>
+                                <GradientStop Color="DarkGray" Offset="0.97"/>
+                                <GradientStop Color="Black" Offset="0"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <RichTextBox x:Name="outputTextBox"
+                                     Margin="5,5,5,5"
+                                     IsReadOnly="True"
+                                     VerticalScrollBarVisibility="Hidden"
+                                     AcceptsReturn="True"
+                                     Focusable="False"
+                                     FontSize="12"
+                                     FontFamily="Consolas"
+                                     Foreground="LightGray"
+                                     BorderThickness="0"
+                                     BorderBrush="Transparent"
+                                     FocusVisualStyle="{x:Null}"
+                                     Cursor="ScrollNS"
+                                     Background="#FF292929"/>
+                    </Border>
+                    <Rectangle IsHitTestVisible="False" Opacity="0.2" Margin="33,13,13,13">
+                        <Rectangle.Fill>
+                            <VisualBrush TileMode="Tile" Viewport="0,0,1,2" ViewportUnits="Absolute">
+                                <VisualBrush.Visual>
+                                    <Canvas Width="1" Height="2">
+                                        <Rectangle Width="1" Height="5" Fill="#FF0C210C"/>
+                                        <Rectangle Width="1" Height="5" Fill="Transparent" Canvas.Top="1"/>
+                                    </Canvas>
+                                </VisualBrush.Visual>
+                            </VisualBrush>
+                        </Rectangle.Fill>
 
+                    </Rectangle>
+                </Grid>
                 <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" Width="20" Height="200">
                     <Border BorderBrush="#FFD4D4D4"
-                            BorderThickness="1,0,1,6"
-                            CornerRadius="0,0,10,10">
+                            BorderThickness="0,0,0,10"
+                            CornerRadius="0,0,15,15">
                         <ProgressBar x:Name="progressBar"
                                      Minimum="0" Maximum="100" Value="0"
                                      Foreground="Transparent">
@@ -332,7 +441,7 @@
                             <ProgressBar.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                     <GradientStop x:Name="topStop" Color="White" Offset="0"/>
-                                    <GradientStop x:Name="bottomStop" Color="Chartreuse" Offset="0"/>                                                                        
+                                    <GradientStop x:Name="bottomStop" Color="Chartreuse" Offset="0"/>
                                 </LinearGradientBrush>
                             </ProgressBar.Background>
                         </ProgressBar>
@@ -347,7 +456,7 @@
                             </LinearGradientBrush>
                         </Rectangle.Fill>
                     </Rectangle>
-
+                    <!-- Bottom End Cap -->
                     <Border Width="20" CornerRadius="0,0,10,10" Height="10" VerticalAlignment="Bottom">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -376,11 +485,16 @@
                            VerticalAlignment="Center"
                            HorizontalAlignment="Center"
                            Foreground="LightGray"
-                           FontSize="10"
+                           FontSize="12"
                            FontFamily="Consolas"
                            FontWeight="SemiBold">
                     <TextBlock.Effect>
-                        <DropShadowEffect/>
+                        <DropShadowEffect
+                            Color="Black"
+                            BlurRadius="2"
+                            ShadowDepth="1"
+                            Direction="280"
+                            Opacity="1"/>
                     </TextBlock.Effect>
                     <Run Text="Developed by:"/>
                     <LineBreak/>
