@@ -157,9 +157,9 @@
                     <Rectangle Width="20" Height="130" VerticalAlignment="Bottom" MouseDown="TopBar_MouseDown" Cursor="Hand">
                         <Rectangle.Fill>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#7F000000" Offset="0"/>
+                                <GradientStop Color="#B2000000" Offset="0"/>
                                 <GradientStop Color="Transparent" Offset="0.5"/>
-                                <GradientStop Color="#7F000000" Offset="1"/>
+                                <GradientStop Color="#B2000000" Offset="1"/>
                             </LinearGradientBrush>
                         </Rectangle.Fill>
                         <Rectangle.ToolTip>
@@ -494,9 +494,9 @@
                     <Rectangle Width="20" Height="190" VerticalAlignment="Top">
                         <Rectangle.Fill>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#7F000000" Offset="0"/>
+                                <GradientStop Color="#B2000000" Offset="0"/>
                                 <GradientStop Color="Transparent" Offset="0.5"/>
-                                <GradientStop Color="#7F000000" Offset="1"/>
+                                <GradientStop Color="#B2000000" Offset="1"/>
                             </LinearGradientBrush>
                         </Rectangle.Fill>
                     </Rectangle>
