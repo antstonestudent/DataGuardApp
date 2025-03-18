@@ -540,21 +540,21 @@
                             Direction="280"
                             Opacity="1"/>
                     </TextBlock.Effect>
-                    <Run Text="Developed by:"/>
-                    <LineBreak/>
-                    <Run Text="Anthony Stone"/>
-                    <LineBreak/>
-                    <Run Text="Koda Shute"/>
-                    <LineBreak/>
-                    <LineBreak/>
-                    <Run Text="Diploma in"/>
-                    <LineBreak/>
-                    <Run Text="Software Development"/>
-                    <LineBreak/>
-                    <LineBreak/>
-                    <Run Text="Yoobee College"/>
-                    <LineBreak/>
-                    <Run Text="of Creative Innovation"/>
+                        <Run Text="Developed by:"/>
+                        <LineBreak/>
+                        <Run Text="Anthony Stone"/>
+                        <LineBreak/>
+                        <Run Text="Koda Shute"/>
+                        <LineBreak/>
+                        <LineBreak/>
+                        <Run Text="Diploma in"/>
+                        <LineBreak/>
+                        <Run Text="Software Development"/>
+                        <LineBreak/>
+                        <LineBreak/>
+                        <Run Text="Yoobee College"/>
+                        <LineBreak/>
+                        <Run Text="of Creative Innovation"/>
                 </TextBlock>
             </Grid>
         </Grid>
