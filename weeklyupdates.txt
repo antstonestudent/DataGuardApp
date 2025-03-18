@@ -24,6 +24,9 @@ added more graphical changes.
 added instructions to the top display.
 added attributions for using images from artists in readme file
 17-23 March
+Added functions to check version of file, and source of the file.
+Added functions to provide a link to the website where the file was downloaded from.
+made the buttons function with the new functions.
 
 24-30 March
 
