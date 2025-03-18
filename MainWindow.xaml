@@ -322,7 +322,7 @@
                     <!-- Buttons on the Left and Right of the Rounded Rectangle -->
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Margin="0,0,0,0" HorizontalAlignment="Center">
                         <!-- Left Button -->
-                        <Button Width="128" Height="50" Margin="70,0" Foreground="White" FontFamily="Consolas" FontWeight="Bold" FontSize="14">
+                        <Button Click="WebsiteSource_Click" Width="128" Height="50" Margin="70,0" Foreground="LightGray" FontFamily="Consolas" FontWeight="Bold" FontSize="14">
                             <TextBlock TextWrapping="Wrap" TextAlignment="Center">Website<LineBreak/>Source</TextBlock>
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
@@ -370,8 +370,8 @@
                         </Button>
 
                         <!-- Right Button -->
-                        <Button Width="128" Height="50" Margin="70,0" Foreground="White" FontFamily="Consolas" FontWeight="Bold" FontSize="14">
-                            <TextBlock TextWrapping="Wrap" TextAlignment="Center">Version<LineBreak/>Update</TextBlock>
+                        <Button Click="GetFileSource_Click" Width="128" Height="50" Margin="70,0" Foreground="LightGray" FontFamily="Consolas" FontWeight="Bold" FontSize="14">
+                            <TextBlock TextWrapping="Wrap" TextAlignment="Center">Check<LineBreak/>Version</TextBlock>
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Grid>
