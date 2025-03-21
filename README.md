@@ -11,8 +11,8 @@ Features
 - CSV Logging
 
 System Requirements
-Operating System: Windows 10 or later
-.NET Runtime: .NET 9 (or higher)
+- Operating System: Windows 10 or later
+- .NET Runtime: .NET 9 (or higher)
 
 
 
